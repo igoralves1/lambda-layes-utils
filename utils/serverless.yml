@@ -1,0 +1,66 @@
+fnGetPasswordHash:
+    name: ${self:provider.stage}-${self:custom.fnGetPasswordHash}
+    handler: src/utils/fnGetHelpers.fnGetPasswordHash
+    events:
+    - http:
+        path: utils/fnGetPasswordHash
+        method: GET
+        private: false
+        cors: true
+        authorizer: ${file(env.yml):${self:provider.stage}.authorizer}
+        request:
+            parameters:
+              querystrings:
+                username: true
+                password: true
+    memorySize: 256
+    timeout: 30
+    iamRoleStatementsName: ${self:provider.stage}-${self:custom.fnGetPasswordHash}
+    iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+      - 'rds:*'
+      Resource: 'arn:aws:rds:${self:provider.region}:${ssm:scican-id}:db:${ssm:rdsMySqlCluster-${self:provider.stage}}'
+    - Effect: 'Allow'
+      Action:
+      - 'logs:CreateLogGroup'
+      - 'logs:CreateLogStream'
+      - 'logs:PutLogEvents'
+      - 'ec2:CreateNetworkInterface'
+      - 'ec2:DescribeNetworkInterfaces'
+      - 'ec2:DeleteNetworkInterfaces'
+      Resource: "*"
+    vpc: ${file(env.yml):vpc-${self:provider.stage}}
+
+fnEncryptBase64:
+    name: ${self:provider.stage}-${self:custom.fnEncryptBase64}
+    handler: src/utils/fnGetHelpers.fnEncryptBase64
+    events:
+    - http:
+        path: utils/fnEncryptBase64
+        method: GET
+        private: false
+        cors: true
+        authorizer: ${file(env.yml):${self:provider.stage}.authorizer}
+        request:
+            parameters:
+              querystrings:
+                username: true
+    memorySize: 256
+    timeout: 30
+    iamRoleStatementsName: ${self:provider.stage}-${self:custom.fnEncryptBase64}
+    iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+      - 'rds:*'
+      Resource: 'arn:aws:rds:${self:provider.region}:${ssm:scican-id}:db:${ssm:rdsMySqlCluster-${self:provider.stage}}'
+    - Effect: 'Allow'
+      Action:
+      - 'logs:CreateLogGroup'
+      - 'logs:CreateLogStream'
+      - 'logs:PutLogEvents'
+      - 'ec2:CreateNetworkInterface'
+      - 'ec2:DescribeNetworkInterfaces'
+      - 'ec2:DeleteNetworkInterfaces'
+      Resource: "*"
+    vpc: ${file(env.yml):vpc-${self:provider.stage}}
